@@ -74,3 +74,12 @@ cannot be verified yet; this needs the user (create a GitHub repo/remote). Track
 3. **`ours_rect`:** when block-level composition cannot put the *same subject* at identical pixels (e.g. a cast
    shadow on grass), the region names a rect in our frame isolating that same subject. Allowed only for the same
    subject type; it must never be a cherry-picked patch, and it is removed once the scene is rebuilt with tools (G9).
+
+## ADR-010 GI direction after the GPC 2024 talk (proposed, implement after G1 review)
+**Context.** docs/STUDY/TALK_GPC2024.md: Tiny Glade rejected DDGI (density, leaks, ghosting on resize) and ships
+quarter-res brute-force hemisphere rays (screen march → software trace fallback), L1 SH, ReBLUR-style denoiser with
+GTAO guidance. Our G1 iterations show the same DDGI weaknesses (flat, leaky contact bounce).
+**Decision.** Move primary diffuse GI to screen-space-first quarter-res rays with SDF-volume fallback, L1 SH, recurrent
+spatiotemporal denoiser; keep the probe grid as the radiance source for off-screen hits. Also adopt: shadow TAA
+(variance clip in shadow space), contact shadows, artist-directed sky gradients instead of the physical atmosphere.
+**Status.** Proposed; scheduled after the user's G1 review since it changes the lighting under review.

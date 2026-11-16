@@ -12,3 +12,7 @@
 /docs/shots/**/iter_*/
 /docs/shots/tmp/
 *.profraw
+
+# Third-party talk transcript (study material, not ours to redistribute)
+/transcript.txt
+/Transcript.txt
