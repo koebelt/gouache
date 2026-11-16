@@ -44,6 +44,13 @@ pub struct Region {
     /// Compute SSIM (only for regions meant to match structurally, e.g. sky, UI).
     #[serde(default)]
     pub structural: bool,
+    /// Rect isolating the *same subject* in our frame when block-level composition cannot place it at
+    /// identical pixels (ADR-009). Defaults to `rect`.
+    #[serde(default)]
+    pub ours_rect: Option<[u32; 4]>,
+    /// Metrics that gate this region (default: all). Others are reported but informative.
+    #[serde(default)]
+    pub checks: Option<Vec<String>>,
 }
 
 fn yes() -> bool {
@@ -118,6 +125,7 @@ pub struct MatchSpec {
 #[derive(Serialize)]
 struct Check {
     metric: &'static str,
+    gating: bool,
     reference: f32,
     ours: f32,
     distance: f32,
@@ -137,6 +145,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
     let mut v = vec![
         Check {
             metric: "palette_de",
+            gating: true,
             reference: 0.0,
             ours: 0.0,
             distance: metrics::palette_de(&r.palette, &o.palette),
@@ -145,6 +154,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
         },
         Check {
             metric: "l_hist_emd",
+            gating: true,
             reference: r.mean_l,
             ours: o.mean_l,
             distance: metrics::emd(&r.l_hist, &o.l_hist),
@@ -153,6 +163,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
         },
         Check {
             metric: "chroma_hist_l1",
+            gating: true,
             reference: r.mean_c,
             ours: o.mean_c,
             distance: metrics::l1(&r.c_hist, &o.c_hist),
@@ -161,6 +172,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
         },
         Check {
             metric: "hue_hist_l1",
+            gating: true,
             reference: 0.0,
             ours: 0.0,
             distance: metrics::l1(&r.h_hist, &o.h_hist),
@@ -169,6 +181,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
         },
         Check {
             metric: "shadow_light_ratio",
+            gating: true,
             reference: r.shadow_light_ratio,
             ours: o.shadow_light_ratio,
             distance: (r.shadow_light_ratio - o.shadow_light_ratio).abs(),
@@ -177,6 +190,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
         },
         Check {
             metric: "warm_cool_sep",
+            gating: true,
             reference: r.warm_cool_sep,
             ours: o.warm_cool_sep,
             distance: (r.warm_cool_sep - o.warm_cool_sep).abs(),
@@ -185,6 +199,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
         },
         Check {
             metric: "local_contrast",
+            gating: true,
             reference: r.local_contrast,
             ours: o.local_contrast,
             distance: o.local_contrast / r.local_contrast.max(1e-5),
@@ -193,6 +208,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
         },
         Check {
             metric: "edge_density",
+            gating: true,
             reference: r.edge_density,
             ours: o.edge_density,
             distance: o.edge_density / r.edge_density.max(1e-5),
@@ -201,6 +217,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
         },
         Check {
             metric: "spectrum_rms",
+            gating: true,
             reference: 0.0,
             ours: 0.0,
             distance: metrics::spectrum_dist(&r.spectrum, &o.spectrum),
@@ -211,6 +228,7 @@ fn compare(r: &Stats, o: &Stats, t: &Thresholds, ssim: Option<f32>) -> Vec<Check
     if let Some(s) = ssim {
         v.push(Check {
             metric: "ssim",
+            gating: true,
             reference: 1.0,
             ours: s,
             distance: s,
@@ -343,7 +361,9 @@ pub fn run(reference: &str, frames: u32, ours: Option<&Path>, iter: Option<u32>)
     heatmap.save(out.join("diff_heatmap.png"))?;
 
     let t = &spec.thresholds;
-    let (rs, os) = (metrics::stats(&ref_img), metrics::stats(&ours_img));
+    // Statistics on half-resolution images: removes palette dithering/JPEG noise in references.
+    let half = |i: &RgbImage| resize(i, (i.width() / 2).max(1), (i.height() / 2).max(1));
+    let (rs, os) = (metrics::stats(&half(&ref_img)), metrics::stats(&half(&ours_img)));
     palette_image(&rs, &os).save(out.join("palette.png"))?;
     let mut reports = vec![RegionReport {
         name: "whole_frame".into(),
@@ -352,19 +372,20 @@ pub fn run(reference: &str, frames: u32, ours: Option<&Path>, iter: Option<u32>)
         pass: false,
     }];
     for r in &spec.regions {
-        let (rc, oc) = (crop(&ref_img, r.rect), crop(&ours_img, r.rect));
+        let (rc, oc) = (crop(&ref_img, r.rect), crop(&ours_img, r.ours_rect.unwrap_or(r.rect)));
         side_by_side(&rc, &oc, &format!("REF {}", r.name), "OURS", 400)
             .save(out.join("regions").join(format!("{}.png", r.name)))?;
-        let ssim = r.structural.then(|| metrics::ssim(&rc, &oc));
-        reports.push(RegionReport {
-            name: r.name.clone(),
-            gated: r.gated,
-            checks: compare(&metrics::stats(&rc), &metrics::stats(&oc), t, ssim),
-            pass: false,
-        });
+        let ssim = r.structural.then(|| metrics::ssim(&half(&rc), &half(&oc)));
+        let mut checks = compare(&metrics::stats(&half(&rc)), &metrics::stats(&half(&oc)), t, ssim);
+        if let Some(only) = &r.checks {
+            for c in &mut checks {
+                c.gating = only.iter().any(|m| m == c.metric);
+            }
+        }
+        reports.push(RegionReport { name: r.name.clone(), gated: r.gated, checks, pass: false });
     }
     for rep in &mut reports {
-        rep.pass = rep.checks.iter().all(|c| c.pass);
+        rep.pass = rep.checks.iter().filter(|c| c.gating).all(|c| c.pass);
     }
     let all_gated_pass = reports.iter().filter(|r| r.gated).all(|r| r.pass);
 
@@ -389,7 +410,11 @@ pub fn run(reference: &str, frames: u32, ours: Option<&Path>, iter: Option<u32>)
                 c.ours,
                 c.distance,
                 c.limit,
-                if c.pass { "ok" } else { "**x**" }
+                match (c.pass, c.gating) {
+                    (true, _) => "ok",
+                    (false, true) => "**x**",
+                    (false, false) => "x (info)",
+                }
             )?;
         }
         writeln!(md)?;

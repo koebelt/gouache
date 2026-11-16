@@ -47,7 +47,7 @@ fn sun_shadow(world: vec3<f32>, n: vec3<f32>, noise: f32) -> f32 {
     let avg = bsum / blockers;
     let dist_m = (z - avg) * range_m;
     // Penumbra grows with blocker distance (sun angular radius scaled by artistic softness).
-    let pen_m = clamp(dist_m * tan(frame.sun_dir.w) * frame.shadow.z, texel * 1.5, 1.2);
+    let pen_m = clamp(dist_m * tan(frame.sun_dir.w) * frame.shadow.z, texel * 3.0, 1.2);
     let filt_uv = pen_m / size;
     var lit = 0.0;
     for (var i = 0u; i < 16u; i++) {
@@ -71,7 +71,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         // Sky (reversed Z: far plane at 0).
         let far = world_from_depth(uv, 1e-7, frame.inv_view_proj);
         let dir = normalize(far - frame.camera_pos.xyz);
-        var c = sky_radiance(dir, sun) * frame.params.w * frame.sun_color.w;
+        var c = sky_radiance(dir, sun) * frame.params.w * frame.sun_color.w * frame.sky_tint.rgb;
         let cs = dot(dir, sun);
         let disk = smoothstep(cos(frame.sun_dir.w * 1.6), cos(frame.sun_dir.w), cs);
         c += sun_rad * disk * 40.0;
@@ -102,10 +102,28 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     } else {
         var sh: array<vec4<f32>, 9>;
         for (var k = 0u; k < 9u; k++) { sh[k] = sky[k]; }
-        indirect = sh9_irradiance(sh, bent) * frame.params.w * frame.sun_color.w;
+        indirect = sh9_irradiance(sh, bent) * frame.params.w * frame.sun_color.w * frame.ambient_tint.rgb;
     }
     let occl = ssao * baked_ao;
     var color = albedo * (direct + back + indirect * occl);
+
+    // Aerial perspective + diorama edge fade into a soft painted backdrop (MASTER_SPEC Phase 1).
+    if (frame.debug.x == 0u) {
+        let to_cam = world - frame.camera_pos.xyz;
+        let dist = length(to_cam);
+        let vdir = to_cam / max(dist, 1e-3);
+        var shh: array<vec4<f32>, 9>;
+        for (var k = 0u; k < 9u; k++) { shh[k] = sky[k]; }
+        let hd = normalize(vec3(vdir.x, 0.25, vdir.z));
+        // Haze = sky light + sun in-scattering (isotropic part + forward Mie lobe): luminous and warm.
+        let glow = 0.35 + pow(max(dot(vdir, sun), 0.0), 6.0) * 0.8;
+        let haze_col = (sh9_irradiance(shh, hd) * frame.sun_color.w * frame.params.w * 0.6 + sun_rad * glow / PI)
+            * frame.sky_tint.rgb;
+        let edge_r = length(world.xz - frame.haze.zw);
+        let edge = smoothstep(frame.haze.y * 0.55, frame.haze.y, edge_r);
+        let fog = 1.0 - exp(-dist * frame.haze.x);
+        color = mix(color, haze_col, clamp(max(fog, edge * 0.85), 0.0, 1.0));
+    }
 
     if (frame.debug.x == 1u) { color = indirect * occl; }
     else if (frame.debug.x == 2u) { color = vec3(occl); }

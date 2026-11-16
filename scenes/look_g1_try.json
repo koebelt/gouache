@@ -1,0 +1,2 @@
+{ "sun_azimuth_deg": 71.0, "sun_elevation_deg": 30.0, "sun_tint": [1.0, 0.82, 0.58], "sun_intensity": 3.4,
+  "ambient_tint": [0.92, 0.82, 1.15], "sky_tint": [1.15, 0.95, 1.0], "exposure": 1.7, "saturation": 1.25, "contrast": 1.0 }

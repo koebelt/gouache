@@ -27,6 +27,9 @@ pub struct FrameUniforms {
     pub(crate) vol_origin: [f32; 4],
     pub(crate) vol_dims: [u32; 4],
     pub(crate) debug: [u32; 4],
+    pub(crate) ambient_tint: [f32; 4],
+    pub(crate) sky_tint: [f32; 4],
+    pub(crate) haze: [f32; 4],
 }
 
 /// Debug visualisation modes (lighting.wgsl).

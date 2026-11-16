@@ -1,0 +1,2 @@
+{ "name": "g1_ref01", "scene": "scenes/g1_lighting.json",
+  "camera": { "eye": [33.0, 37.0, 33.0], "target": [0.5, 4.5, -2.5], "fov_y_deg": 30.0 } }

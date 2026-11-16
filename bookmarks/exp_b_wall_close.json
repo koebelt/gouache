@@ -1,0 +1,17 @@
+{
+ "name": "exp_b_wall_close",
+ "scene": "scenes/exp_b_wall.json",
+ "camera": {
+  "eye": [
+   7.0,
+   5.5,
+   11.0
+  ],
+  "target": [
+   0.0,
+   0.8,
+   1.0
+  ],
+  "fov_y_deg": 40.0
+ }
+}

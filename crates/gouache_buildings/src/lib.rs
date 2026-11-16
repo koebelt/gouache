@@ -2,3 +2,4 @@
 
 pub mod primitives;
 pub mod scene_build;
+pub mod wall;

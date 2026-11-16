@@ -7,7 +7,7 @@ pub mod look;
 pub mod scene;
 
 pub use look::Look;
-pub use scene::{Bookmark, CameraSpec, Primitive, SceneDoc};
+pub use scene::{Bookmark, CameraSpec, Primitive, SceneDoc, WallSpec};
 
 /// Errors loading documents.
 #[derive(Debug, thiserror::Error)]

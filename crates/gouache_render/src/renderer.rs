@@ -482,6 +482,9 @@ impl Renderer {
             vol_origin: v4(scene.vol_origin, scene.vol_voxel),
             vol_dims: [scene.vol_dims[0], scene.vol_dims[1], scene.vol_dims[2], per_frame],
             debug: [self.settings.view as u32, self.accum, u32::from(still), 0],
+            ambient_tint: [look.ambient_tint[0], look.ambient_tint[1], look.ambient_tint[2], 0.0],
+            sky_tint: [look.sky_tint[0], look.sky_tint[1], look.sky_tint[2], 0.0],
+            haze: [look.haze_density, scene.radius * 0.62, scene.center.x, scene.center.z],
         };
         ctx.queue.write_buffer(&self.uniforms, 0, bytemuck::bytes_of(&u));
         self.prev_vp = vp;

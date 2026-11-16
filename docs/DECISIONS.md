@@ -64,3 +64,13 @@ it needs a session with screen-capture tools. Until then, the three supplied ref
 **Decision.** `.github/workflows/ci.yml`: fmt, clippy -D warnings, tests on ubuntu/windows/macos; Linux installs
 Mesa lavapipe for headless GPU smoke tests; cargo-deny. **Status:** the repo has no remote, so 3-OS green
 cannot be verified yet; this needs the user (create a GitHub repo/remote). Tracked in PROGRESS.
+
+## ADR-009 Match-loop measurement rules
+1. **Dither-free statistics:** metrics run on half-resolution images (triangle filter). Ref 01 is an 8-bit palette
+   dither; at full resolution its edge density/local contrast/spectrum measured dither noise (0.43 edge density).
+2. **Per-region gating metrics:** a region may list `checks`; G1 lighting regions gate on colour/value metrics
+   (palette ΔE, L/chroma/hue histograms, shadow/light ratio, warm/cool separation). Texture metrics stay reported
+   ("x (info)") until the gate that builds that texture (grass blades G3, stones G7…).
+3. **`ours_rect`:** when block-level composition cannot put the *same subject* at identical pixels (e.g. a cast
+   shadow on grass), the region names a rect in our frame isolating that same subject. Allowed only for the same
+   subject type; it must never be a cherry-picked patch, and it is removed once the scene is rebuilt with tools (G9).

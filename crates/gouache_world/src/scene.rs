@@ -27,10 +27,55 @@ pub enum Primitive {
         /// sRGB colour.
         color: [f32; 3],
     },
+    /// Stone wall along a curve (experiment b; becomes the G7 wall tool intent).
+    StoneWall {
+        /// Control points x, z (m).
+        path: Vec<[f32; 2]>,
+        /// Wall parameters.
+        #[serde(default)]
+        spec: WallSpec,
+    },
 }
 
 fn default_radius() -> f32 {
     0.08
+}
+
+/// Wall parameters (intent).
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+pub struct WallSpec {
+    /// Wall height above local ground (m).
+    pub height: f32,
+    /// Thickness (m).
+    pub thickness: f32,
+    /// Course height range (m).
+    pub course_h: [f32; 2],
+    /// Stone length range (m).
+    pub stone_len: [f32; 2],
+    /// Mortar gap (m).
+    pub gap: f32,
+    /// Base stone colour (sRGB).
+    pub color: [f32; 3],
+    /// Colour jitter (fraction).
+    pub color_jitter: f32,
+    /// Generator seed.
+    pub seed: u64,
+}
+
+impl Default for WallSpec {
+    fn default() -> Self {
+        Self {
+            height: 2.4,
+            thickness: 0.7,
+            course_h: [0.24, 0.36],
+            stone_len: [0.35, 0.8],
+            gap: 0.035,
+            color: [0.86, 0.78, 0.60],
+            color_jitter: 0.09,
+            seed: 1,
+        }
+    }
 }
 
 /// A camera.

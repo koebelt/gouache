@@ -20,6 +20,12 @@ pub struct Look {
     pub sun_tint: [f32; 3],
     /// Sky intensity multiplier (ambient + backdrop).
     pub sky_intensity: f32,
+    /// Tint on sky light reaching surfaces (stylised: violet shadows).
+    pub ambient_tint: [f32; 3],
+    /// Tint on the visible sky/backdrop.
+    pub sky_tint: [f32; 3],
+    /// Aerial perspective density (1/m).
+    pub haze_density: f32,
     /// Linear exposure multiplier.
     pub exposure: f32,
     /// Diffuse GI strength (0 = sky ambient only).
@@ -42,6 +48,9 @@ impl Default for Look {
             sun_intensity: 3.0,
             sun_tint: [1.0, 0.95, 0.85],
             sky_intensity: 1.0,
+            ambient_tint: [1.0, 1.0, 1.0],
+            sky_tint: [1.0, 1.0, 1.0],
+            haze_density: 0.004,
             exposure: 1.6,
             gi_strength: 1.0,
             ao_strength: 1.0,

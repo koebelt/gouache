@@ -14,3 +14,4 @@ gouache_math.workspace = true
 gouache_procgen.workspace = true
 gouache_world.workspace = true
 glam.workspace = true
+serde.workspace = true

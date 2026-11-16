@@ -42,6 +42,12 @@ pub fn build(doc: &SceneDoc) -> BuiltScene {
                     3,
                 ));
             }
+            Primitive::StoneWall { path, spec } => {
+                let pts: Vec<glam::Vec2> = path.iter().map(|p| glam::Vec2::new(p[0], p[1])).collect();
+                if let Some(w) = crate::wall::build_wall(&pts, spec, &|x, z| hf.sample(x, z)) {
+                    meshes.push(w.mesh);
+                }
+            }
         }
     }
     BuiltScene { heightfield: hf, meshes }

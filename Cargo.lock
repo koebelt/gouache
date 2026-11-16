@@ -420,6 +420,7 @@ dependencies = [
  "gouache_math",
  "gouache_procgen",
  "gouache_world",
+ "serde",
 ]
 
 [[package]]

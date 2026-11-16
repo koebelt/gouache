@@ -18,6 +18,9 @@ struct Frame {
     vol_origin: vec4<f32>,      // SDF volume min corner xyz, w voxel size (m)
     vol_dims: vec4<u32>,        // SDF voxel counts xyz, w probes updated per frame
     debug: vec4<u32>,           // x view mode, y accumulated frames, z still camera (1), w unused
+    ambient_tint: vec4<f32>,    // rgb tint on sky light reaching surfaces
+    sky_tint: vec4<f32>,        // rgb tint on the visible sky
+    haze: vec4<f32>,            // x density (1/m), y diorama edge radius (m), zw diorama centre xz
 };
 
 const PI: f32 = 3.14159265359;

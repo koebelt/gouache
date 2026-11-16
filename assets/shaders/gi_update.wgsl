@@ -47,7 +47,7 @@ fn sun_vis(p: vec3<f32>) -> f32 {
 fn sky_irr(d: vec3<f32>) -> vec3<f32> {
     var sh: array<vec4<f32>, 9>;
     for (var k = 0u; k < 9u; k++) { sh[k] = sky[k]; }
-    return sh9_irradiance(sh, d) * frame.params.w * frame.sun_color.w;
+    return sh9_irradiance(sh, d) * frame.params.w * frame.sun_color.w * frame.ambient_tint.rgb;
 }
 
 @compute @workgroup_size(64)
