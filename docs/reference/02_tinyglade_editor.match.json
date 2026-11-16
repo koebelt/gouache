@@ -1,0 +1,15 @@
+{
+  "image": "02_tinyglade_editor.jpg",
+  "target_scene": "scenes/g1_lighting.json",
+  "camera": { "eye": [24.0, 26.0, 30.0], "target": [0.0, 3.0, 0.0], "fov_y_deg": 32.0, "time_of_day": "afternoon", "season": "autumn" },
+  "look": null,
+  "regions": [
+    { "name": "water_leaf_litter", "rect": [0, 560, 420, 380], "what_it_should_show": "dark reflective pond with floating orange leaves, reeds (G5)", "gated": false },
+    { "name": "paving_sunlit", "rect": [640, 600, 520, 200], "what_it_should_show": "irregular flagstones, warm sun, cool violet shadow from house (G7/G8)", "gated": false },
+    { "name": "roof_shingles", "rect": [520, 60, 420, 240], "what_it_should_show": "red-brown shingles with green moss variation (G8)", "gated": false },
+    { "name": "ui_toolbar", "rect": [550, 985, 820, 80], "what_it_should_show": "bottom icon bar, rounded tinted tiles, procedurally drawn icons (G8/G9)", "gated": false, "structural": true },
+    { "name": "ui_gizmo", "rect": [930, 20, 520, 520], "what_it_should_show": "white in-world gizmo arrows and dashed outline (G8/G9)", "gated": false }
+  ],
+  "thresholds": {},
+  "notes": "Sun from upper-left behind the buildings (long shadows toward camera-right). Water is dark, slightly blue-green with sky reflection."
+}

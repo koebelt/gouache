@@ -1,0 +1,16 @@
+{
+  "image": "01_tinyglade_town.png",
+  "target_scene": "scenes/g1_lighting.json",
+  "camera": { "eye": [30.0, 30.0, 38.0], "target": [0.0, 4.0, 0.0], "fov_y_deg": 30.0, "time_of_day": "late afternoon (golden hour)", "season": "autumn" },
+  "look": null,
+  "regions": [
+    { "name": "backdrop_haze", "rect": [0, 0, 240, 140], "what_it_should_show": "sky/backdrop: warm peach-lavender haze, soft, low contrast (G1 sky_backdrop)", "gated": true },
+    { "name": "shadow_edge", "rect": [1180, 880, 420, 200], "what_it_should_show": "soft warm-to-cool shadow transition on grass, violet-tinted shade with bounce (G1)", "gated": true },
+    { "name": "grass_with_bounce_light", "rect": [0, 900, 560, 180], "what_it_should_show": "sunlit golden grass, warm saturated, soft value range (G1)", "gated": true },
+    { "name": "tree_canopy", "rect": [1300, 0, 620, 300], "what_it_should_show": "fluffy layered autumn canopies, warm light / cool violet shade (G4)", "gated": false },
+    { "name": "stone_wall_base", "rect": [840, 560, 240, 280], "what_it_should_show": "irregular beveled stones, colour jitter, mortar recess (G7)", "gated": false },
+    { "name": "roof_teal_slates", "rect": [790, 30, 360, 300], "what_it_should_show": "individual teal slates with moss, ridge, dormers (G8)", "gated": false }
+  ],
+  "thresholds": {},
+  "notes": "Sun from camera-right, slightly behind camera, ~30 deg elevation (tower right face brightest; right house shadows courtyard). Source frame is palette-dithered (8-bit colormap): distribution metrics only. Composition: tower centre, houses left/right, autumn forest fills background (no open sky)."
+}

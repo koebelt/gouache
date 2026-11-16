@@ -87,6 +87,18 @@ enum Cmd {
         #[arg(long, default_value_t = 2.0)]
         max_mean_de: f32,
     },
+    /// Crop rectangles (x,y,w,h) out of an image: `--rect name:x,y,w,h` (repeatable).
+    Crop {
+        /// Input image.
+        #[arg(long)]
+        input: PathBuf,
+        /// Output directory.
+        #[arg(long)]
+        out_dir: PathBuf,
+        /// name:x,y,w,h
+        #[arg(long = "rect")]
+        rects: Vec<String>,
+    },
     /// Print deterministic content hashes of a scene's generated meshes.
     Hash {
         /// Scene JSON.
@@ -129,6 +141,17 @@ fn main() -> Result<()> {
             println!("mean ΔE = {de:.3} (max {max_mean_de})");
             if de > max_mean_de {
                 bail!("golden mismatch");
+            }
+        }
+        Cmd::Crop { input, out_dir, rects } => {
+            let img = imageops::load_rgb(&input)?;
+            std::fs::create_dir_all(&out_dir)?;
+            for r in rects {
+                let (name, nums) = r.split_once(':').context("expected name:x,y,w,h")?;
+                let v: Vec<u32> = nums.split(',').map(str::parse).collect::<Result<_, _>>()?;
+                anyhow::ensure!(v.len() == 4, "expected 4 numbers in {r}");
+                let c = image::imageops::crop_imm(&img, v[0], v[1], v[2], v[3]).to_image();
+                c.save(out_dir.join(format!("{name}.png")))?;
             }
         }
         Cmd::Hash { scene } => {

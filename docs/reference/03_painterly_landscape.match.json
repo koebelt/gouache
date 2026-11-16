@@ -1,0 +1,14 @@
+{
+  "image": "03_painterly_landscape.png",
+  "target_scene": "scenes/g1_lighting.json",
+  "camera": { "eye": [0.0, 1.2, 40.0], "target": [0.0, 3.0, -60.0], "fov_y_deg": 38.0, "time_of_day": "midday", "season": "spring" },
+  "look": null,
+  "regions": [
+    { "name": "sky", "rect": [300, 140, 900, 280], "what_it_should_show": "saturated blue sky gradient with soft painted clouds (G13)", "gated": false, "structural": true },
+    { "name": "foreground_flowers", "rect": [0, 720, 1100, 220], "what_it_should_show": "large readable translucent petals, pink/orange/white (G3)", "gated": false },
+    { "name": "meadow_mid", "rect": [900, 700, 1000, 160], "what_it_should_show": "bright green meadow with flower speckles receding (G3)", "gated": false },
+    { "name": "distant_mountain", "rect": [980, 330, 760, 330], "what_it_should_show": "aerial perspective, blue-violet distance, painterly strokes (G13)", "gated": false }
+  ],
+  "thresholds": {},
+  "notes": "Letterboxed: rows 0-130 and 950-1080 are black bars; regions avoid them. Not Tiny Glade; target for meadow and distance look."
+}
