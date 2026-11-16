@@ -1,0 +1,13 @@
+{
+  "name": "g0_blocks",
+  "terrain": { "seed": 7, "size_m": 120.0, "cell_m": 0.5, "amplitude_m": 3.0, "feature_m": 45.0, "flat_radius_m": 18.0 },
+  "primitives": [
+    { "kind": "rounded_box", "at": [0.0, 0.0],   "size": [6.0, 5.0, 4.0],  "radius": 0.25, "yaw_deg": 15, "color": [0.86, 0.80, 0.66] },
+    { "kind": "rounded_box", "at": [-7.0, 3.0],  "size": [3.0, 9.0, 3.0],  "radius": 0.20, "yaw_deg": -5, "color": [0.78, 0.74, 0.62] },
+    { "kind": "rounded_box", "at": [6.5, -3.0],  "size": [4.0, 3.0, 5.0],  "radius": 0.20, "yaw_deg": 32, "color": [0.80, 0.52, 0.42] },
+    { "kind": "rounded_box", "at": [4.0, 6.0],   "size": [8.0, 1.6, 0.8],  "radius": 0.15, "yaw_deg": -20, "color": [0.74, 0.70, 0.60] },
+    { "kind": "rounded_box", "at": [-3.0, -6.0], "size": [2.2, 2.2, 2.2],  "radius": 0.35, "yaw_deg": 40, "color": [0.55, 0.62, 0.66] },
+    { "kind": "rounded_box", "at": [-11.0, -4.0],"size": [5.0, 3.5, 3.5],  "radius": 0.25, "yaw_deg": 70, "color": [0.88, 0.78, 0.52] }
+  ],
+  "look": {}
+}

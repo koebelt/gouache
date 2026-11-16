@@ -5,3 +5,10 @@
 /docs/reference/*.webp
 .DS_Store
 /target/
+# Clean-room analysis artefacts (Phase 0.5) must never enter the repo.
+/re_workspace/
+/docs/reference/captured/
+# Generated output
+/docs/shots/**/iter_*/
+/docs/shots/tmp/
+*.profraw

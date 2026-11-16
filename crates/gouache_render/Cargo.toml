@@ -1,0 +1,25 @@
+[package]
+name = "gouache_render"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+gouache_math.workspace = true
+wgpu.workspace = true
+glam.workspace = true
+bytemuck.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+pollster.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+gouache_world.workspace = true
+gouache_procgen.workspace = true
+rayon.workspace = true
+naga = { version = "30.0.2", features = ["wgsl-in"] }

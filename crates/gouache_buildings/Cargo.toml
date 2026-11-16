@@ -1,0 +1,16 @@
+[package]
+name = "gouache_buildings"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+gouache_math.workspace = true
+gouache_procgen.workspace = true
+gouache_world.workspace = true
+glam.workspace = true

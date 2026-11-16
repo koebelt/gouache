@@ -1,0 +1,15 @@
+[package]
+name = "gouache_procgen"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+gouache_math.workspace = true
+glam.workspace = true
+serde.workspace = true
