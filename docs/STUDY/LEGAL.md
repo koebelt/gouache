@@ -24,3 +24,11 @@ _Recorded 2026-11-16._
 - **Phase 0.4 (black-box observation while playing)** is consistent with Art. 5(3); it needs screen capture of the
   running game (not available in this session).
 - Nothing from the game's files is copied into the repo beyond short factual notes (names, versions, counts).
+
+## Update 2026-11-16 — user instruction
+The user explicitly instructed that the binary static analysis (Phase 0.5) be performed and stated they accept the
+legal risk themselves. It proceeds strictly under MASTER_SPEC §0.5: a separate Analyst agent inspects the user's own
+local copy; raw outputs (string dumps, symbol lists, notes) live **outside the repo** in `~/gouache_re_workspace/` and are
+never committed, pasted or quoted; only prose design descriptions reach `docs/STUDY/CLEANROOM/`. Still forbidden:
+copying/transcribing code, pseudo-code, constant tables, shaders, assets or text; running, debugging, hooking,
+injecting or memory-inspecting the game; GPU frame capture; bypassing DRM; descriptions so precise they are the code.
