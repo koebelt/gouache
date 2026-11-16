@@ -22,6 +22,14 @@ _Last updated: 2026-11-16 (session 1, stopped at G1 for user review)._ Resume: r
 - G0 status: done except CI 3-OS verification (no remote), GPU timestamps/overlay, editor surface spike.
 - Experiments: (a) GI ✔, (b) stone courses ✔ docs/shots/g0/exp_b_vs_ref02.png, (d) PCSS+AO ✔ (AO weak-ish).
 
+### Phase 0.3-0.5 follow-up (2026-11-16)
+- GPC 2024 talk studied → docs/STUDY/TALK_GPC2024.md, ADR-010 (GI direction change, proposed).
+- 0.5 pass 1 done (shipped plaintext only) → docs/STUDY/CLEANROOM/. Pass 2 (static binary analysis) is for a separate
+  Analyst session started by the user: docs/STUDY/ANALYST_PROMPT.md. Implementer must not read its raw output.
+- 0.4 observation: run docs/STUDY/OBSERVATION_PROMPT.md in the Claude desktop app with Computer use; captures go to
+  docs/reference/captured/ (git-ignored) via scripts/capture.sh; prose to docs/STUDY/OBSERVED.md.
+- Spec instruction from user: finish 0.4 and 0.5 before going further.
+
 ### Next (after user review)
 1. Critic items: sky void → warm gradient/painted backdrop ring; bloom + highlight roll-off; contact-hardening (SDSM/
    tighter shadow fit + smaller min penumbra near contact); GTAO.
