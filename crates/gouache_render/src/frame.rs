@@ -30,6 +30,7 @@ pub struct FrameUniforms {
     pub(crate) ambient_tint: [f32; 4],
     pub(crate) sky_tint: [f32; 4],
     pub(crate) haze: [f32; 4],
+    pub(crate) shade_tint: [f32; 4],
 }
 
 /// Debug visualisation modes (lighting.wgsl).

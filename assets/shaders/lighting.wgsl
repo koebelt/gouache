@@ -105,6 +105,9 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         indirect = sh9_irradiance(sh, bent) * frame.params.w * frame.sun_color.w * frame.ambient_tint.rgb;
     }
     let occl = ssao * baked_ao;
+    // Warm sun / cool shade: ambient reaching surfaces the sun does not light is cooled (stylised, Tiny Glade).
+    let sunlit = shadow * smoothstep(0.0, 0.25, ndl);
+    indirect *= mix(frame.shade_tint.rgb, vec3(1.0), sunlit);
     var color = albedo * (direct + back + indirect * occl);
 
     // Aerial perspective + diorama edge fade into a soft painted backdrop (MASTER_SPEC Phase 1).
@@ -121,7 +124,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
             * frame.sky_tint.rgb;
         let edge_r = length(world.xz - frame.haze.zw);
         let edge = smoothstep(frame.haze.y * 0.55, frame.haze.y, edge_r);
-        let fog = 1.0 - exp(-dist * frame.haze.x);
+        let fog = 1.0 - exp(-max(dist - 30.0, 0.0) * frame.haze.x);
         color = mix(color, haze_col, clamp(max(fog, edge * 0.85), 0.0, 1.0));
     }
 

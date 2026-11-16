@@ -57,5 +57,5 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     }
     let ao = 1.0 - occ / f32(SAMPLES);
     let bn = select(n, normalize(bent), length(bent) > 1e-3);
-    textureStore(out_ao, px, vec4(pow(ao, 1.3), bn));
+    textureStore(out_ao, px, vec4(pow(ao, 2.0), bn));
 }

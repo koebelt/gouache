@@ -1,6 +1,6 @@
 # Progress
 
-_Last updated: 2026-11-16 (session 1)._ Resume: read this, then DECISIONS.md and LOOKDEV.md.
+_Last updated: 2026-11-16 (session 1, stopped at G1 for user review)._ Resume: read this, then DECISIONS.md and LOOKDEV.md.
 
 ## Current phase: PHASE 0 (Foundations + Study) → gate G0
 
@@ -16,16 +16,17 @@ _Last updated: 2026-11-16 (session 1)._ Resume: read this, then DECISIONS.md and
 - `gouache_cli`: `shot`, `contact`, `match` (full §11.2 metrics + images), `golden`, `hash`.
 - First lit test scene renders: docs/shots/g0/g0_debug_sheet.png.
 
-### In progress
-- Reference `.match.json` for refs 01/02/03 (camera/sun estimates, regions).
-- Study docs (`docs/STUDY/*`).
+### In progress — G1 lighting sandbox: **USER STOP reached (awaiting review)**
+- Match loop on ref 01: 10 iterations (00-09), critic run once (iter 07). Evidence: docs/shots/g1/
+  (side_by_side_iter09.png, regions_iter09.png, report_iter09.md, progress.png). Gated regions do NOT all pass yet.
+- G0 status: done except CI 3-OS verification (no remote), GPU timestamps/overlay, editor surface spike.
+- Experiments: (a) GI ✔, (b) stone courses ✔ docs/shots/g0/exp_b_vs_ref02.png, (d) PCSS+AO ✔ (AO weak-ish).
 
-### Next (Phase 0 order, §14)
-1. Study docs from research done (kajiya GI summary, Tiny Glade sources) → STUDY/{RENDERING,PROCEDURAL,UX,OPEN_QUESTIONS,SOURCES,PLAN}.md
-2. CI workflow + deny.toml (needs a GitHub remote to verify 3-OS green — ask user at G1 stop).
-3. GPU timestamps + frame-time overlay; editor surface spike (ADR-001).
-4. Experiment (b) stone coursing along a curve; (d) stronger contact AO; (a) GI vs reference.
-5. G0 report → G1 lighting sandbox (USER STOP).
+### Next (after user review)
+1. Critic items: sky void → warm gradient/painted backdrop ring; bloom + highlight roll-off; contact-hardening (SDSM/
+   tighter shadow fit + smaller min penumbra near contact); GTAO.
+2. Re-run critic each iteration until regions >= 4 and thresholds pass (max 25 iterations).
+3. G0 leftovers: GPU timestamps + frame-time overlay; editor window spike (ADR-001); CI once a remote exists.
 
 ### Known issues
 - SSAO weak at contacts; shadows not violet enough; sky grey (see LOOKDEV).

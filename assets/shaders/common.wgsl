@@ -21,6 +21,7 @@ struct Frame {
     ambient_tint: vec4<f32>,    // rgb tint on sky light reaching surfaces
     sky_tint: vec4<f32>,        // rgb tint on the visible sky
     haze: vec4<f32>,            // x density (1/m), y diorama edge radius (m), zw diorama centre xz
+    shade_tint: vec4<f32>,      // rgb multiplier on ambient where the sun does not reach
 };
 
 const PI: f32 = 3.14159265359;

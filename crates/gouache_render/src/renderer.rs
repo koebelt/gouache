@@ -484,6 +484,7 @@ impl Renderer {
             debug: [self.settings.view as u32, self.accum, u32::from(still), 0],
             ambient_tint: [look.ambient_tint[0], look.ambient_tint[1], look.ambient_tint[2], 0.0],
             sky_tint: [look.sky_tint[0], look.sky_tint[1], look.sky_tint[2], 0.0],
+            shade_tint: [look.shade_tint[0], look.shade_tint[1], look.shade_tint[2], 0.0],
             haze: [look.haze_density, scene.radius * 0.62, scene.center.x, scene.center.z],
         };
         ctx.queue.write_buffer(&self.uniforms, 0, bytemuck::bytes_of(&u));
