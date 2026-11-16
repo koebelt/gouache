@@ -28,6 +28,8 @@ _Last updated: 2026-11-16 (session 1, stopped at G1 for user review)._ Resume: r
   Analyst session started by the user: docs/STUDY/ANALYST_PROMPT.md. Implementer must not read its raw output.
 - 0.4 observation: run docs/STUDY/OBSERVATION_PROMPT.md in the Claude desktop app with Computer use; captures go to
   docs/reference/captured/ (git-ignored) via scripts/capture.sh; prose to docs/STUDY/OBSERVED.md.
+- 0.4 observation PARTIAL (2026-11-16): settings, time dial, clay/painterly styles, wall/tower/path/arch behaviour,
+  summer mid-height 4-time sweep + night high → docs/STUDY/OBSERVED.md; captures private in docs/reference/captured/.
 - Spec instruction from user: finish 0.4 and 0.5 before going further.
 
 ### Next (after user review)
