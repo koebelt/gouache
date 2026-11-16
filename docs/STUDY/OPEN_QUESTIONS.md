@@ -8,6 +8,6 @@
    grass, flowers, water, path); lighting probes (sunlit coloured wall beside grass; deep shadow corner; arch tunnel;
    room with one window); tool frame sequences (drag wall, close loop, raise height, add window, glue, path through wall,
    erase, undo/redo, terrain brush).
-3. Phase 0.5 clean-room: requires a separate Analyst session + EULA recorded in LEGAL.md (ADR-007).
+3. Phase 0.5 clean-room: requires a separate Analyst session (ADR-007).
 4. CI: needs a GitHub remote to verify 3-OS green (ADR-008).
 5. Ref 01 sun direction is ambiguous from the frame (front-left key light chosen by metrics; see LOOKDEV iter 4).

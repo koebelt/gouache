@@ -56,8 +56,7 @@ penumbra ∝ blocker distance × tan(sun radius) × artistic softness, rotated p
 **Context.** Tiny Glade is installed on this machine. 0.4 needs screen capture/computer-use driving the game;
 0.5 needs a *separate* Analyst session whose output only reaches the Implementer as prose.
 **Decision.** This (Implementer) session does neither. 0.5 would break the clean-room separation if done
-here, so it is deferred until the user starts a dedicated Analyst session (recording the EULA in
-`docs/STUDY/LEGAL.md` first). 0.4 is listed in `docs/STUDY/OPEN_QUESTIONS.md` with the exact capture list;
+here, so it is deferred until the user starts a dedicated Analyst session. 0.4 is listed in `docs/STUDY/OPEN_QUESTIONS.md` with the exact capture list;
 it needs a session with screen-capture tools. Until then, the three supplied references + public sources are used.
 
 ## ADR-008 CI: GitHub Actions, 3 OS, Linux via lavapipe

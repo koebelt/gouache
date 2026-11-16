@@ -7,7 +7,7 @@ Paste everything below the line into a new Claude desktop session on this Mac. F
 ---
 
 You are helping with **Phase 0.4 (black-box observation)** of the Gouache project at
-`/Users/koebelt/Documents/dev/gouache`. Read `CLAUDE.md`, `docs/MASTER_SPEC.md` §0.4 and §11, `docs/STUDY/LEGAL.md`,
+`/Users/koebelt/Documents/dev/gouache`. Read `CLAUDE.md`, `docs/MASTER_SPEC.md` §0.4 and §11,
 `docs/STUDY/TALK_GPC2024.md`, and `docs/STUDY/CLEANROOM/*.md` first so you know what we already know and what we need.
 
 **Goal.** Play Tiny Glade (my own Steam copy; Steam must be running, the game is

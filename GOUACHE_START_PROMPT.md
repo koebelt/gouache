@@ -85,7 +85,7 @@ Deliverables: `docs/STUDY/{RENDERING,PROCEDURAL,UX,OPEN_QUESTIONS,SOURCES,PLAN}.
 
 **0.4 Black-box observation** (only if Tiny Glade is installed and computer-use/screen tools are available; else skip and list what's needed). Play it as a user and capture reference packs to `docs/reference/captured/` (private use only, never shipped): same-scene sweeps (4 times of day × 4 seasons × 3 camera heights), close-ups of each material (stone, roof, plaster, timber, foliage, grass, flowers, water, path), lighting probes (sunlit colored wall beside grass; deep shadow corner; arch tunnel; room with one window), and **frame sequences of each tool's behavior** (drag wall, close loop, raise height, add window, glue buildings, path through wall, erase, undo/redo, terrain brush). Index with metadata.
 
-**0.5 (OPT-IN, user has chosen this) Clean-room static analysis of the Tiny Glade binary.** Allowed only as follows, because the user explicitly wants it and accepts the legal risk (the EULA must be read and recorded in `docs/STUDY/LEGAL.md`; I am not a lawyer):
+**0.5 (OPT-IN, user has chosen this) Clean-room static analysis of the Tiny Glade binary.** Allowed only as follows:
 - Use the user's own purchased copy, locally only. Never upload or distribute the binary or analysis databases.
 - **Two sessions:** an *Analyst* (decompiles/inspects, writes **prose design descriptions only** to `docs/STUDY/CLEANROOM/`) and an *Implementer* (all other work; reads only those descriptions, never the binary or decompiler output).
 - Decompiler/disassembler outputs, databases, symbol dumps and raw strings live **outside the repo** (git-ignored) and are never committed, pasted, or quoted.

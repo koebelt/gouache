@@ -6,12 +6,11 @@ paste everything below the line. Never paste this session's raw output into the 
 ---
 
 I am the owner of a purchased Steam copy of Tiny Glade installed at
-`~/Library/Application Support/Steam/steamapps/common/Tiny Glade`. I have read `docs/STUDY/LEGAL.md`, including Steam
-Subscriber Agreement §2.G. **I explicitly instruct you to perform the static analysis below on my local copy, and I accept the
-legal risk myself.** You are the **Analyst** in a clean-room process (`docs/MASTER_SPEC.md` §0.5). A separate Implementer
+`~/Library/Application Support/Steam/steamapps/common/Tiny Glade`. **I explicitly instruct you to perform the static
+analysis below on my local copy.** You are the **Analyst** in a clean-room process (`docs/MASTER_SPEC.md` §0.5). A separate Implementer
 reads only your prose, never the binary or your raw output.
 
-Read first: `docs/MASTER_SPEC.md` §0.5, `docs/STUDY/LEGAL.md`, `docs/STUDY/CLEANROOM/*.md` (pass 1, built from shipped
+Read first: `docs/MASTER_SPEC.md` §0.5, `docs/STUDY/CLEANROOM/*.md` (pass 1, built from shipped
 plaintext files), `docs/STUDY/TALK_GPC2024.md`.
 
 **Allowed (static, read-only, on the local install):**
