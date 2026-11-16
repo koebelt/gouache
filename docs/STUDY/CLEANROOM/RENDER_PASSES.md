@@ -101,3 +101,89 @@ beyond a literal name is [INFERRED]. The whole folder is 8.7 MB.
 - `rasterize_buildings(_animate)` writes a building footprint mask used by grass and
   foliage exclusion.
 - `roof_tiles_gravity` suggests falling or settling roof-tile animation.
+
+---
+# Pass 2: static metadata (SPIR-V reflection, binary module paths)
+Only SPIR-V module headers were parsed (stage, workgroup size, resource debug names, bindings,
+image formats); no instruction was read. Raw output stays in `~/gouache_re_workspace/`.
+Tags: [CS] = CONFIRMED-STATIC, [I] = INFERRED.
+
+## Global facts
+- [CS] Only vertex, fragment and compute stages. No mesh, task, tessellation or ray-tracing
+  stages. All "ray tracing" is software compute traversal of a BVH stored in buffers.
+- [CS] Most compute is 8×8 workgroups. Scans use 256–512 wide groups; culling uses 32–64.
+- [CS] The G-buffer is one packed 64-bit unsigned-integer target (two 32-bit channels) plus
+  depth. Normals are re-extracted to a half-resolution signed-8-bit view-normal texture, and
+  depth to a half-resolution 32-bit float texture, by a dedicated pass.
+- [CS] HDR scene colour, TAA/upscaler history, DoF and bloom targets are R11G11B10 float.
+  GI/radiance intermediates are RGBA16F. AO is R16F, and R8 after temporal filtering.
+- [CS] Shared resources visible in most game shaders: a frame-constants block, a per-view
+  block, a bindless-style texture handle table, blue-noise textures, a terrain heightmap and
+  a "visual" terrain heightmap, a colour library (palette data) and cascaded sun shadows.
+
+## Frame graph, refined order [I unless noted]
+1. Upload world rasters / dirty edits; GPU procedural spawners (garden, paths, lilypads, reeds).
+2. Reprojection map from depth + previous depth (+ velocity) [CS inputs]. Depth min/max
+   reduction feeds shadow setup.
+3. GPU culling of instanced parts against the previous frame's visibility bitmask and the
+   HZB, histogram-bucketed into merged indirect draw lists (two-phase occlusion culling;
+   [CS] prev/next visibility bitmasks and HZB are bound). Walls use their own chunked brick
+   lists with a separate shadow-view list culled against a shadow-receiver HZB.
+4. Shadow setup on the GPU: cascade splits computed from the main view's depth min/max, a
+   handful of cascade views (setup runs as a single tiny workgroup of ~4 threads, so probably
+   ~4 cascades). Shadow casters are culled against the receiver set ("shadow receiver
+   frustum"). A separate low-resolution 16-bit volumetric shadow map is also produced, partly
+   by tracing the BVH.
+5. Geometry raster into the packed G-buffer; grass far field is drawn by a compute "splat"
+   rasteriser into a 32-bit-uint depth target (atomic min), then resolved by a full-screen pass.
+6. Half-res depth/normal extraction; HZB build for next frame.
+7. Screen shadows (16×16 groups): cascaded map + a shadow stencil map + terrain heightmap,
+   temporally accumulated with a history texture (shadow TAA), output R8 mask; a histogram of
+   the mask feeds a mean value used later in final post.
+8. GTAO at half res → temporal → bilateral upsample to full res.
+9. GI (half res, ReSTIR-style): trace candidates → reservoir update → screen evaluation →
+   reprojection with temporal statistics → blur. Details below.
+10. Lantern lights: binned into a grid of cells (prefix-summed lists), with a ReSTIR-DI
+    reservoir for direct lighting from many small lights.
+11. Deferred lighting as full-screen fragment passes, one per lighting model (solid, grass,
+    plant, canopy). The solid pass reads G-buffer, depth, screen-space GI, screen shadows,
+    indirect radiance, a split-sum BRDF LUT, the light grid and the DI reservoir.
+12. Sky dome (colour-library driven, moon texture) and cloud sprites (four cloud textures),
+    stars.
+13. Froxel volumetrics: fog noise baked into a small 3D texture; froxel lighting uses
+    cascades, the volumetric shadow map, a ray-traced sky-visibility volume, the terrain
+    lighting texture and lanterns, with temporal history; applied full or half res.
+14. Water/ice: reflection rays compacted into a list and traced on the BVH with indirect
+    dispatch; ice uses a screen march then BVH, with temporal resolve.
+15. Temporal upscaler (tgsr / tgsr2) → DoF → bloom pyramid → final post → swapchain.
+
+## GI in detail [CS resources, I behaviour]
+- Everything runs at half resolution (half depth, half normals, half-res outputs).
+- Candidate trace: one candidate per half-res pixel per frame (one hit texture and one
+  radiance texture), guided by blue noise. It reuses the previous TAA output as a
+  screen-space radiance source, then falls back to a BVH over triangles (bottom-level BVH +
+  triangle buffer + per-triangle metadata) and the terrain heightmap. Hits are shaded using
+  the cascaded sun shadow, the terrain lighting texture and palette ids for wall/roof colours,
+  so the BVH carries material ids, not textures.
+- Reservoir update: ReSTIR-style resampling storing a packed reservoir, ray direction and
+  radiance per pixel.
+- Evaluation resolves reservoirs (spatial reuse with blue-noise offsets) into screen radiance.
+- Temporal: reprojection with a temporal-statistics (moments) texture, then an
+  edge-aware blur guided by half depth and normals. This matches the talk's "ReBLUR-like"
+  denoiser in structure.
+- Total effective budget: about one ray per quarter-resolution-area pixel per frame, before
+  reuse. Exact sample counts not determined.
+
+## Grass [CS resources, I behaviour]
+Grass instances (clumps) are culled on the GPU against the HZB and a removal mask (paths,
+water, buildings, gardens, rock, foliage exclusion combined into one RG8 mask). Near grass is
+real instanced geometry (LOD0) through the same culling system as building parts; far grass
+is card splats rasterised in compute and resolved. An object-push texture bends grass.
+Tint comes from a baked world-albedo texture.
+
+## Post [CS resources]
+TAA/upscaler splits history into luminance (R16F) and chroma (RG16F) after reprojection, uses
+a blurred-luminance and a velocity-spread texture, and a per-pixel decision texture (tgsr2).
+DoF is tiled: CoC prepare, tile dilation, indirect dispatch of half-res and full-res gathers
+with LOD variants. Final post combines the scene, the blur pyramid (bloom), the shadow-mask
+mean and a 3D LUT (grading/ICC).

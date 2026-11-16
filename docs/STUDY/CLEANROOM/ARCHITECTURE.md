@@ -110,3 +110,59 @@ feature crates, each owning precompiled SPIR-V. Game-specific GPU work (procedur
 foliage, water, painterly effects) lives in `country-core`'s shader set, and engine-generic
 passes live in the `rhapsody-*` sets. Heavy GPU-driven rendering is implied by the indirect-draw
 and culling shader names (see RENDER_PASSES.md).
+
+---
+# Pass 2: static binary metadata
+Sources: architecture/load commands, section sizes, crate paths and first-party module paths
+embedded in the main executable (panic/debug locations), read via `strings`/`otool` into
+`~/gouache_re_workspace/` only. Nothing below quotes the binary; it summarises it.
+
+## Binary [CONFIRMED-STATIC]
+- Single arm64 executable (not universal), with a symbol table present; links MoltenVK, the
+  Vulkan loader, SDL2, FMOD (core + studio) and the Steam API as bundled dylibs.
+- Roughly 250 third-party crates are compiled in. Confirms pass 1: Bevy 0.17 with only the
+  ECS, app, state, time, tasks and reflect sub-crates (no Bevy renderer, assets or windowing);
+  ash 0.38; a forked GPU memory allocator crate; rspirv (SPIR-V handling at runtime).
+- Geometry/maths: parry3d and nalgebra (collision and queries), bvh plus a first-party BVH
+  builder, mesh_to_sdf, hexasphere, petgraph, slotmap, rdst (radix sort), a noise crate.
+- Data: ron and serde for settings, rkyv and speedy (fast binary serialisation), redb (an
+  embedded key-value store), zstd/brotli/lzma decompression, blake3 and xxhash, gltf, ddsfile,
+  exr, image. UI: egui (debug), iced-derived first-party UI, taffy layout, swash/rustybuzz
+  text. Tooling: puffin profiler, sentry/minidump crash reporting, a symbolication stack.
+
+## First-party crate map [CONFIRMED-STATIC names, INFERRED roles]
+- A large game crate ("country-core", ~400 source files) holding resources, systems,
+  rendering, history, save, terrain, audio, UI and Steam integration.
+- One crate per tool/system: wall constructor, decorator (windows, doors, chimneys, dormers,
+  balconies, lanterns, flags, stairs), roof, timberframe, clutter (auto-placed props), color,
+  critters (sheep and others), forest, tree tool, water, toolbar (menus, photo mode),
+  onboarding.
+- Engine crates: the "rhapsody" renderer, a shader-interface crate, a GPU profiler, a
+  conservative line rasteriser, a curve/geometry utility crate, a ray-tracing helper crate,
+  an asset crate with prefabs, and offline pipes (asset, clutter-pack, clutter-icon).
+- An async/incremental build-graph crate (name suggests "turbosloth"-style lazy evaluation)
+  used for asset or shader pipelines [INFERRED].
+- App shell crate with GUI, crash pickup and a panic reporter; GPU selector; package
+  integrity check; mod support; localisation.
+
+## Game-side organisation [INFERRED from module names]
+- Resources vs systems split, Bevy style. Walls are represented as paths of segments with
+  holes, window cuts, attachments, trigger volumes, inner walls and "render slots" (a slot
+  allocation for GPU instance data). Decorators (windows, doors…) have storage, subtype,
+  cached transforms and an "archivist" (history record).
+- Render loop is ECS systems split into compute passes (~30: culling/draw-list generation,
+  GI/DI, shadows, grass, water, paths, garden, terrain strokes, readbacks for mouse picking,
+  visibility queries, vegetation spawn around buildings, roof-tile gravity) and draw passes
+  (~13: main, shadow, deferred raster, transparency, grass push, UI, final post).
+- Instanced-part renderer ("nani"): GPU world buffers, a mesh atlas of part meshes, per-part
+  instance data, capacity management and maintenance (compaction).
+- Ray-tracing scene: a CPU-built BVH over proxy triangles, uploaded for compute traversal.
+- Terrain: heightmap resources, rock mask, raster strokes and a "world raster" of 2D masks.
+- Save: background save thread, snapshot, shadow file (atomic write), backup rotation,
+  session lock, required-clutter list. History: per-domain edit records and a replay
+  command buffer (see PROCEDURAL_SYSTEMS).
+
+## Architectural reading, pass 2 [INFERRED]
+The game is "ECS for logic + explicit render graph in a custom Vulkan engine", where nearly all
+per-frame geometry work (culling, draw lists, grass, prop spawning) is GPU-driven and the CPU
+mostly maintains instance buffers, a BVH and 2D world masks after edits.

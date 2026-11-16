@@ -75,3 +75,42 @@ those names.
 - [x] These docs contain no code, shader text, constant tables or verbatim file contents beyond crate
       names and versions, file and folder names, counts and sizes. The two settings in
       default_settings.ron are paraphrased in prose.
+
+---
+# Pass 2 (static analysis of the local install, at the owner's direct written request)
+## Upgraded or new claims
+- [CONFIRMED-STATIC] Vertex/fragment/compute only; software BVH traversal in compute for GI,
+  water, ice, sky visibility and volumetric shadows.
+- [CONFIRMED-STATIC] Packed 64-bit integer G-buffer; half-res depth and signed-8-bit normals.
+- [CONFIRMED-STATIC] HDR, history, DoF and bloom targets in R11G11B10 float.
+- [CONFIRMED-STATIC] GI runs at half resolution and uses ReSTIR-style reservoirs, temporal
+  statistics and an edge-aware blur (upgrades pass 1's "screen radiance" inference).
+- [CONFIRMED-STATIC] Many-light direct lighting via a light grid plus a DI reservoir.
+- [CONFIRMED-STATIC] GPU-fit cascaded sun shadows with a stencil map; screen shadows with
+  temporal history; separate volumetric shadow map.
+- [CONFIRMED-STATIC] Two-phase occlusion culling inputs (previous/next visibility bitmasks
+  plus HZB) for instanced parts and wall bricks; two brick LODs.
+- [CONFIRMED-STATIC] Far grass rasterised in compute into a uint depth target, then resolved.
+- [CONFIRMED-STATIC] Terrain heightmap + visual heightmap + rock mask; strokes rasterised on GPU.
+- [CONFIRMED-STATIC] Per-domain edit history with replay systems and a replay command buffer.
+- [INFERRED] About four shadow cascades. One GI candidate ray per half-res pixel per frame.
+- [INFERRED] Undo is replay-based with incremental, per-wall/decorator regeneration.
+## Not determined
+Exact ray counts and reuse radii, cascade resolution, internal resolution of each pass beyond
+"full vs half", denoiser kernel details, brick dimensions. These would need code reading,
+which was out of scope.
+
+## Compliance checklist, pass 2
+- [x] Only static, read-only tools were used on the local install: `lipo -info`, `size`,
+      `otool -L`, `nm` (count only), `strings`, and a throwaway Python parser that reads SPIR-V
+      module headers (stage, workgroup size, debug names, bindings, image formats) and stops
+      before the first function. No new tools were installed.
+- [x] The game was not run, debugged, hooked or memory-inspected. No GPU frame capture.
+- [x] No game file was copied or modified. Files were read in place.
+- [x] All raw outputs (string dumps, crate list, module path list, reflection JSON and
+      summary, the parser script) are only in `~/gouache_re_workspace/`, outside the repo.
+- [x] No decompilation, no disassembly of functions, no shader instructions read.
+- [x] Nothing from the binary is quoted in the repo: these four docs are prose summaries.
+      Names that appear were already listed in pass 1 or are generic role descriptions.
+- [x] No code, shader text, constant tables, assets or text transcribed; parameters are
+      given only as rough ranges ("half res", "about four").

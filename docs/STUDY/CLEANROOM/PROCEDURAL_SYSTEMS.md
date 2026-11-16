@@ -100,3 +100,68 @@ Source assets (JSON meshes, images, glTF) go through `asset-pipe` and `turboslot
 content-hashed build graph) and come out as hashed `.bin` packages. Textures are BCn-compressed
 via `intel_tex_2`/ISPC. Foliage is preprocessed per theme by `foliage-pipe` (uses `meshopt`,
 `gltf` and `grass2-shader`). Clutter icons are rendered offline with dedicated shaders.
+
+---
+# Pass 2: from binary module paths and shader resource metadata
+[CS] = CONFIRMED-STATIC (a module or resource with that role exists), [I] = INFERRED.
+
+## Walls and buildings
+- [CS] The wall constructor is staged: segmentation of the wall path, wall height and arch
+  segment height initialisation, an "arch walker" that walks segments to place arches,
+  pillars, lintels, floors, plaster, stone foundation surfaces, wooden walls and arch frames,
+  fences, gates, platform and player-made stairs, elevation supports (stilts/foundations on
+  slopes, the largest sub-module) and curved half-timber.
+- [I] Pipeline: user path → segmented spans (straight/curved, with holes for windows, doors
+  and path crossings) → per-span part placement → instance lists per part type. Arches are a
+  walk along segments looking for path/gate crossings rather than a boolean cut.
+- [CS] Bricks are GPU instances in chunks with per-chunk visibility bitmasks and two LODs
+  (LOD0 detailed brick, LOD1 cheap shape, matching the talk). Brick colour comes from palette
+  ids per wall, roof and foundation, so recolouring is an id change, not a rebuild.
+- [CS] Other parts (planks, gable planks, roof tiles, plaster, foundation surface, stairs,
+  stair ropes, arch frames, curved timber, bushes, flowers, smoke) each have a dedicated GPU
+  cull-and-bucket path in the shared instancing system.
+- [CS] Decorators are separate entities with visuals per style (cottage vs gothic windows,
+  doors, dormers, balconies, arrow slits, chimneys built from bricks, flags with connections,
+  clothes lines, lanterns, trap doors). [I] Windows erode plaster through "window cuts" and
+  "wall holes" resources consumed by the constructor.
+- [CS] Roofs: create/edit/delete, ridge direction and ridge length edits, spatial index
+  update, trigger volume. Roof tiles have a GPU "gravity" pass [I: settling animation].
+- [CS] Auto-clutter: candidate regions are populated and processed around gates and windows,
+  on windows, bird nests, lantern/water set dressing, plus pre-placed clutter; it reads bush
+  positions back from the GPU. Inter-roof merlons and inter-shape stitches join shapes.
+
+## Terrain [CS resources, I behaviour]
+- The terrain is a GPU heightmap texture plus a second "visual" heightmap (likely the
+  smoothed/animated version shown on screen), a rock mask (RGBA16F "rocky terrain" with
+  derivatives) and a baked terrain lighting texture.
+- Edits are brush strokes stored as data, rasterised on the GPU into a 16-bit height image
+  with per-texel stroke indices and a signed-distance-gradient helper, cached per stroke.
+  Hover highlighting uses the stroke index image. Terrain deletion animates.
+- Heights and rock mask are read back to the CPU in small batches for gameplay queries.
+- Distant terrain is a separate low-detail mesh; ray tracing uses chunked terrain proxies
+  and the heightmap directly.
+
+## World rasters (2D masks) [CS]
+Paths, gardens, water, building footprints (blurred and sharp), foliage exclusion and rock
+are kept as 2D textures over the glade. Grass removal, lilypad/reed spawning, garden
+bushes/flowers (marching squares) and pebbles are all derived from them on the GPU.
+
+## Vegetation [CS resources, I behaviour]
+Grass uses clump records with per-exemplar parameters, a card-direction lookup and GPU
+compaction (scan) of visible clumps; near grass becomes instanced blades, far grass splats.
+Trees: a tree tool plus a forest system; canopy, trunk and billboards have their own shaders
+and a dedicated canopy lighting model.
+
+## Undo / redo and regeneration [CS names, I behaviour]
+- History records are per domain: wall compound edits (several walls changed in one action),
+  decorator edits, terrain edits, roof edits, plus raster edits (paths/gardens/plant paint),
+  stairs and auto-clutter.
+- Undo/redo is implemented as replay: a replay command buffer and per-domain replay systems
+  re-apply recorded edits, and a replay mode replays a whole history (used by starting builds
+  and saves that store history plus snapshots).
+- Recording is deferred (terrain and roof history are recorded after the edit settles) and
+  terrain-changed notifications are delayed, i.e. edits are coalesced before regeneration.
+- Regeneration is incremental: walls own render slots, decorators keep cached transforms and
+  a differential state, so only touched walls/decorators rebuild their instance data;
+  everything per-frame downstream (culling, grass, clutter spawning) is GPU-driven from
+  instance buffers and 2D masks.
