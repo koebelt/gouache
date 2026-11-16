@@ -1,0 +1,7 @@
+# Third-party reference screenshots: kept locally only, never published.
+/docs/reference/*.png
+/docs/reference/*.jpg
+/docs/reference/*.jpeg
+/docs/reference/*.webp
+.DS_Store
+/target/
